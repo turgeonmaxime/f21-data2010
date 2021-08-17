@@ -1,68 +1,65 @@
 ---
-title: STAT 3150 - Fall 2020
+title: DATA 2010 - Fall 2021
 type: docs
 BookToC: 2
 ---
 
 # General Information
 
-This is the course website for **STAT 3150: Statistical Computing**. This course aims to provide students with a broad overview of computational techniques used in modern statistical analysis. Throughout the course, students will:
+This is the course website for **DATA 2010: Tools and Techniques for Data Science**. This course aims to provide students with an introduction to the field of data science with an emphasis on the fundamental tools and techniques that underlie the field. Throughout the course, students will:
 
- - Become proficient in R, to the level that they can analyse data using the tools from this class.
- - Be able to choose and produce an appropriate data visualization given the context.
- - Learn how to sample from various distributions, directly and indirectly.
- - Become familiar with several resampling techniques and know which one to use for a particular problem.
- - Be introduced to numerical methods and optimisation techniques.
+ - Become proficient in `R`/Python, to the level that they can analyze data using the tools from this class.
+ - Be able to describe and analyze data through visualization and simple statistical procedures.
+ - Be introduced to statistical thinking and be able to think critically about variation and biases.
+
+At the end of the course, students will be able to analyze data using both `R` and Python. Each programming language has its pros and cons, and knowing how to use both is a valuable skill.
 
 ## Course Details
 
   - Instructor: [Max Turgeon](https://maxturgeon.ca/)
   - Email: <max.turgeon@umanitoba.ca>
   - Office: 373 Machray Hall
-  - Website: <https://maxturgeon.ca/f20-stat3150/>
-  - Lectures: TR 10:00 AM--11:15 AM, via Webex
+  - Website: <https://maxturgeon.ca/f21-data2010/>
+  - Lectures: MWF 1:30 PM--2:20 PM, via Zoom
+  - Lab: M 4:30PM--5:45 PM (on Webex)
   - Office Hours:
     + By appointment **only**
     
-<!--The course outline can be downloaded [here](outline_stat4690_f19.pdf).-->
+
 
 ### Prerequisites
 
-STAT 2150 (Statistics and Computing) and STAT 2400 (Introduction to Probability 1)
+MATH 1240 (Elementary Discrete Mathematics), MATH 1300 or MATH 1220 (Linear Algebra), one of MATH 1700, MATH 1710, or MATH 1232 (Calculus 2)
+
+### Co-Requisites
+
+STAT 2150 (Statistics and Computing) and COMP 2140 (Data Structures and Algorithms)
 
 ### Textbook
 
-*Statistical Computing with R* (2<sup>nd</sup> ed.) by Maria L. Rizzo, CRC Press, 2019.
+The following textbooks are good references, but they are not required:
 
-The textbook is not required but strongly recommended.
+  - Skiena, *The Data Science Design Manual*. Springer (2017)
+  - Kim & Ismay, [*Statistical Inference Via Data Science: A ModernDive Into `R` and the Tidyverse*](https://moderndive.com/). CRC Press (2019).
+  - VanderPlas, [*Python Data Science Handbook*](https://jakevdp.github.io/PythonDataScienceHandbook/). O'Reilly (2016)
 
 ### Assessments
 
 The assessments for this course include:
 
-  - Six (6) assignments.
-  - Two (2) midterm tests.
+  - Five (5) labs.
+  - Three (3) assignments.
+  - One (1) course project.
   - One (1) final exam.
 
 ## Outline of Topics
 
 The course is expected to cover the following topics:
 
-  - Data Visualization (Chapter 5)
-  - Generating Random Variables (Chapter 3)
-  - Monte Carlo Integration (Chapter 6)
-  - Importance Sampling (Chapter 6)
-  - Monte Carlo Methods for Inference (Chapter 7)
-  - Bootstrap and Jackknife (Chapter 8)
-  - Resampling Applications (Chapter 9)
-  - Permutation Tests (Chapter 10)
-  - Numerical Methods (Chapter 13)
-  - Introduction to Optimisation (Chapter 14)
+  - Data cleaning and wrangling
+  - Correlation, distributions, significance
+  - Data visualization
+  - Scores and rankings
+  - Linear regression
+  - Introduction to Machine Learning
 
-## Statistical Software
-
-The course requires you to make extensive use of the R statistical software for your assignments and final data project. Sample codes will be provided to students. 
-
-You can download R for free (for Windows, Mac, Linux, and Solaris) from the *Comprehensive R Archive Network* at: https://cran.r-project.org/
-
-For additional resources on R, see [here]({{< ref "suppl.md" >}}).
