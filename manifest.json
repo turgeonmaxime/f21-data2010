@@ -1,0 +1,15 @@
+{
+  "name": "DATA 2010 - Fall 2021",
+  "short_name": "DATA 2010 - Fall 2021",
+  "start_url": "/f21-data2010/",
+  "scope": "/f21-data2010/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/f21-data2010/favicon.svg",
+      "sizes": "512x512"
+    }
+  ]
+}
