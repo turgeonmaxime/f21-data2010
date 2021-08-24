@@ -5,7 +5,7 @@ source: true
 output: binb::metropolis
 fontsize: 12pt
 author: Max Turgeon
-institute: STAT 3150--Statistical Computing
+institute: DATA2010--Tools and Techniques in Data Science
 header-includes:
   - \usefonttheme{professionalfonts}
   - \usepackage{graphicx}
