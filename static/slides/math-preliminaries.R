@@ -1,20 +1,4 @@
----
-title: "{{ replace .Name "-" " " | title }}"
-draft: true
-source: true
-output: binb::metropolis
-fontsize: 12pt
-author: Max Turgeon
-institute: DATA 2010--Tools and Techniques in Data Science
-header-includes:
-  - \usefonttheme{professionalfonts}
-  - \usepackage{graphicx}
-  - \usepackage{tikzpagenodes}
-  - \usetikzlibrary{calc}
-  - \usepackage{caption}
----
-
-```{r,setup, include=FALSE}
+## ----setup, include=FALSE-----------------------------------------------------
 library(knitr)
 hook_output = knit_hooks$get('output')
 knit_hooks$set(output = function(x, options) {
@@ -30,9 +14,4 @@ knit_hooks$set(output = function(x, options) {
 
 knitr::opts_chunk$set(cache = FALSE, message = FALSE,
                       linewidth = 50)
-```
-
-## Lecture Objectives
-
-## Motivation
 

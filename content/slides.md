@@ -8,6 +8,7 @@ type: docs
 If you are registered for the course, you can find the material on [UM Learn](https://universityofmanitoba.desire2learn.com/d2l/login).
 
   - [Course Overview](introduction.pdf)
+  - [Mathematical Preliminaries](math-preliminaries.pdf)
 
 <!--
   - [Course Overview](overview.pdf)
