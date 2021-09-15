@@ -1,0 +1,296 @@
+---
+title: "Summary Statistics"
+draft: false
+source: true
+output: binb::metropolis
+fontsize: 12pt
+author: Max Turgeon
+institute: DATA 2010--Tools and Techniques in Data Science
+header-includes:
+  - \usefonttheme{professionalfonts}
+  - \usepackage{graphicx}
+  - \usepackage{tikzpagenodes}
+  - \usetikzlibrary{calc}
+  - \usepackage{caption}
+---
+
+```{r,setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(cache = FALSE, message = FALSE,
+                      linewidth = 50)
+```
+
+## Lecture Objectives
+
+  - Compute summary statistics in `R`
+  - Use the Central Limit Theorem to construct confidence intervals for means and proportions
+  - Import data into `R`
+
+## Motivation
+
+  - It's one of the great paradoxes of statistics:
+    + To better understand data, summarise it.
+  - The mean/average occupies a special place, because of its nice properties.
+  - But looking at multiple summaries gives us a fuller picture.
+  
+## Mean
+
+  - Recall the definition: if we have $n$ observations $X_1, \ldots, X_n$, their **mean** (or average) is their sum divided by $n$:
+  $$\bar{X} = \frac{1}{n} \sum_{i=1}^n X_i.$$
+  - The mean is a measure of *central tendency*, i.e. where the bulk of the observations tend to fall.
+  - In `R`, we can compute the mean using the function `mean`.
+  
+## Examples {.allowframebreaks}
+
+  - We'll use the dataset `mtcars`, which comes with `R` by default.
+  - Datasets are usually stored in `data.frame`s.
+    + We can inspect `data.frame`s using `str` or `head`/`tail`.
+
+```{r}
+str(mtcars)
+```
+
+  - There are many ways to compute the average miles per gallon (`mpg`) for this dataset. I will demonstrate two ways.
+    + Extract column
+    + Use `tidyverse` (next week)
+  
+```{r, message = FALSE}
+# Extract column with $ and use mean function
+mpg_vec <- mtcars$mpg
+mean(mpg_vec)
+```
+
+```{r, message = FALSE}
+# Or in one line of code
+mean(mtcars$mpg)
+```
+
+  - We can also compute the variance, standard deviation, IQR, etc.
+  
+```{r}
+mpg_vec <- mtcars$mpg
+c(var(mpg_vec), sd(mpg_vec))
+IQR(mpg_vec)
+```
+
+## Exercise
+
+Use the `median` function to compute the median `mpg`.
+
+## Solution
+
+```{r, message = FALSE}
+# Extract column first
+mpg_vec <- mtcars$mpg
+median(mpg_vec)
+```
+
+```{r, message = FALSE}
+# Or in one line of code
+median(mtcars$mpg)
+```
+
+## Missing data {.allowframebreaks}
+
+  - In `R`, missing data will usually be represented by the value `NA`.
+    + Unless the data collection used a different value...
+  - If you try to summarize a vector with missing value, you will get `NA`.
+  - Therefore, missing values need to be removed first using `na.rm = TRUE`.
+  
+```{r}
+# Create a vector with NA
+vect <- c(1, 4, NA, 5.5)
+```
+
+\vspace{1cm}
+
+```{r}
+mean(vect)
+mean(vect, na.rm = TRUE)
+```
+
+
+## Summaries by group {.allowframebreaks}
+
+  - We may want to summarise by groups, i.e. for each subgroup we want the sample mean.
+    + We usually want to compare them! 
+  
+```{r eval = TRUE, message = FALSE}
+# Let's look at cyl
+table(mtcars$cyl)
+
+mpg_4c <- mtcars$mpg[mtcars$cyl == 4]
+mpg_6c <- mtcars$mpg[mtcars$cyl == 6]
+mpg_8c <- mtcars$mpg[mtcars$cyl == 8]
+```
+
+
+```{r eval = TRUE, message = FALSE}
+c(mean(mpg_4c), mean(mpg_6c), mean(mpg_8c))
+```
+
+## Exercise 
+
+Compute the median `mpg` for each value of `cyl`.
+
+## Solution
+
+```{r eval = TRUE, message = FALSE}
+c(median(mpg_4c), median(mpg_6c), 
+  median(mpg_8c))
+```
+
+## Central Limit Theorem {.allowframebreaks}
+
+  - The sample mean gives us some idea about the *population* mean.
+    + "What if we could measure the height of all Canadians, instead of a sample?"
+  - But how certain can we be that the mean of our data is close to the true population mean?
+  - The Central Limit Theorem tells us that, whatever the distribution of the data, its *sample mean* behaves like a normal random variable.
+  - More precisely, if we have $n$ independent observations that come from a distribution with mean $\mu$ and variance $\sigma^2$, then the sample mean is approximately normal:
+  $$ \bar{X} \approx N(\mu, \sigma^2/n).$$
+  - The most important consequence: we can construct confidence intervals for the *population* mean.
+    + For 95% CI: $\bar{X} \pm 1.96\hat{\sigma}/\sqrt{n}$, where $\hat{\sigma}$ is the *standard deviation* of the data (use the function `sd`).
+    
+\vspace{1cm}
+    
+  - Important observations:
+    + As we collect more data, the standard deviation of the data can go up or down. On the other hand, the confidence interval will become narrower and narrower.
+    + In practice, we don't really know if our data is independent, or if it all comes from the same distribution. This uncertainty has to be reflected in the strength of our conclusions about the data.
+  - **Vocabulary**: $\hat{\sigma}$ is the standard *deviation*, and $\hat{\sigma}/\sqrt{n}$ is the standard *error*.
+
+## Examples {.allowframebreaks}
+
+```{r}
+# Recall----
+c(mean(mtcars$mpg), sd(mtcars$mpg), nrow(mtcars))
+# 95% Confidence interval
+c(20.09062 - 1.96*6.026948/sqrt(32),
+  20.09062 + 1.96*6.026948/sqrt(32))
+```
+
+```{r}
+# Alternative: save values in variables
+# and use variables
+mean_mpg <- mean(mtcars$mpg)
+sd_mpg <- sd(mtcars$mpg)
+n <- nrow(mtcars)
+
+c(mean_mpg - 1.96*sd_mpg/sqrt(n),
+  mean_mpg + 1.96*sd_mpg/sqrt(n))
+```
+
+## Exercise
+
+\begin{center}
+Compute the \emph{average and standard deviation} for \texttt{qsec}, which is the quarter-mile time (i.e. the time it takes the car to travel a quarter mile starting from a standstill). 
+
+Compute a 95\% confidence interval for the average quarter-mile time.
+\end{center}
+
+## Solution
+
+```{r}
+mean_qsec <- mean(mtcars$qsec)
+sd_qsec <- sd(mtcars$qsec)
+n <- nrow(mtcars)
+mean_qsec
+sd_qsec
+
+c(mean_qsec - 1.96*sd_qsec/sqrt(n),
+  mean_qsec + 1.96*sd_qsec/sqrt(n))
+```
+
+## Proportions are means too!
+
+  - If I want the proportion of apples among fruits, I can take the mean of binary observations:
+    + $X_i = 1$ if the $i$-th fruit is an apple.
+    + $X_i = 0$ otherwise.
+  - This means we can use the CLT for proportions too.
+    + **Note**: It doesn't work well when the proportion $\hat{p}$ and the number of observations $n$ are small.
+    
+## Examples {.allowframebreaks}
+
+```{r}
+cyl6 <- as.numeric(mtcars$cyl == 6)
+table(cyl6)
+mean(cyl6)
+```
+
+  - **Note**: If $\hat{p}$ is the proportion, then $\hat{\sigma} = \sqrt{\hat{p}(1 - \hat{p})}$.
+  
+```{r}
+n <- nrow(mtcars)
+phat <- mean(cyl6)
+sigma <- sqrt(phat*(1 - phat))
+
+c(phat - 1.96*sigma/sqrt(n),
+  phat + 1.96*sigma/sqrt(n))
+```
+
+## Importing CSV files {.allowframebreaks}
+
+  - As we've seen, `R` comes with built-in datasets.
+  - To analyze your *own* data, you would need to import it.
+  - Two most common file formats:
+    + Comma-Separated Value (CSV)
+    + Excel file.
+  - We will use different functions for each file format.
+  
+```{r eval = FALSE}
+# For CSV files----
+library(readr)
+
+dataset <- read_csv("path/to/file.csv")
+```
+
+```{r eval = FALSE}
+# For Excel files----
+library(readxl)
+
+dataset <- read_excel("path/to/file.xlsx")
+# read_excel can also read older xls files
+```
+
+## Example {.allowframebreaks}
+
+  - The csv file can be on your local computer or even online.
+  
+```{r}
+library(readr)
+
+url <- paste0("https://biostat.app.vumc.org/",
+              "wiki/pub/Main/DataSets/",
+              "diabetes.csv")
+```
+
+```{r message = TRUE}
+dataset <- read_csv(url)
+```
+
+```{r}
+# How many rows and columns?
+dim(dataset)
+
+# Average height and weight
+c(mean(dataset$height), mean(dataset$weight))
+```
+
+
+```{r}
+# Missing values!
+c(mean(dataset$height, na.rm = TRUE), 
+  mean(dataset$weight, na.rm = TRUE))
+```
+
