@@ -9,6 +9,9 @@ If you are registered for the course, you can find the material on [UM Learn](ht
 
   - [Course Overview](introduction.pdf)
   - [Mathematical Preliminaries](math-preliminaries.pdf)
+    + [Simpson's Paradox](simpson-paradox.pdf)
+  - [Summary Statistics](summary-statistics.pdf)
+    + [R code](summary-statistics.R)
 
 <!--
   - [Course Overview](overview.pdf)
