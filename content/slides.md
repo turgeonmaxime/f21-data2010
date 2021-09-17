@@ -12,6 +12,8 @@ If you are registered for the course, you can find the material on [UM Learn](ht
     + [Simpson's Paradox](simpson-paradox.pdf)
   - [Summary Statistics](summary-statistics.pdf)
     + [R code](summary-statistics.R)
+  - [Introduction to the Tidyverse](intro-tidyverse.pdf)
+    + [R code](intro-tidyverse.R)
 
 <!--
   - [Course Overview](overview.pdf)
