@@ -14,6 +14,10 @@ If you are registered for the course, you can find the material on [UM Learn](ht
     + [R code](summary-statistics.R)
   - [Introduction to the Tidyverse](intro-tidyverse.pdf)
     + [R code](intro-tidyverse.R)
+  - [Tidy data](tidy-data.pdf)
+    + [R code](tidy-data.R)
+  - [Joining data](joining-data.pdf)
+    + [R code](joining-data.R)
 
 <!--
   - [Course Overview](overview.pdf)
