@@ -1,0 +1,206 @@
+---
+title: "Correlation"
+draft: false
+source: true
+output: binb::metropolis
+fontsize: 12pt
+author: Max Turgeon
+institute: DATA 2010--Tools and Techniques in Data Science
+header-includes:
+  - \usefonttheme{professionalfonts}
+  - \usepackage{graphicx}
+  - \usepackage{tikzpagenodes}
+  - \usetikzlibrary{calc}
+  - \usepackage{caption}
+---
+
+```{r,setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(cache = FALSE, message = FALSE,
+                      linewidth = 50)
+```
+
+## Lecture Objectives
+
+  - Explain the purpose of correlation analysis in data science
+  - Describe the difference between different measures of correlation
+  - Discuss the main differences between correlation and causation
+
+## Motivation
+
+  - In data science, we rarely look at one variable at a time.
+    + Not just the distribution of GPAs, but the distribution for each major separately.
+  - In fact, we are mostly interested in the *relationship* between different variables.
+    + GPA vs high-school grades
+  - **Correlation** is the main language we use to describe these relationships in statistics
+  
+## Pearson correlation {.allowframebreaks}
+
+  - This is the main measure of correlation.
+  - Given two samples $X_1, \ldots, X_n$, $Y_1, \ldots, Y_n$.
+    + Same sample size
+    + $X_i,Y_i$ are measured on the **same** experimental/observational unit.
+    + $\bar{X}$ is the sample mean of $X_i$'s, $\bar{Y}$ is the sample mean of $Y_i$'s
+    
+$$r =  \frac{\sum_{i=1}^n\left(X_i - \bar{X}\right)\left(Y_i - \bar{Y}\right)}{\sqrt{\sum_{i=1}^n\left(X_i - \bar{X}\right)^2} \sqrt{\sum_{i=1}^n\left(Y_i - \bar{Y}\right)^2}}.$$
+
+  - Similarly, it can be defined in terms of the sample variances $s^2_X,s^2_Y$ and the sample covariance $s_{XY}$:
+  
+$$r = \frac{s_{XY}}{\sqrt{s^2_Xs^2_Y}}.$$
+
+  - We have $r \in [-1, 1]$.
+  - Pearson correlation measures **linear relationships**, and it especially suited for normally distributed measurements.
+    + We will have $r = 1$ if $Y_i = a X_i$ for $a > 0$, and similarly for $r = -1$.
+    + The maximum value of $r$ can be strictly less than 1 for some distributions.
+  - In particular, the Pearson correlation can change dramatically after transformation of the data.
+    + It is also sensitive to outliers
+
+## Spearman correlation {.allowframebreaks}
+
+  - Spearman correlation uses rank information.
+    + Do $X_i$ and $Y_i$ have the same rank?
+  - Let $\mathrm{rank}(X_i)$ be the rank of $X_i$ after having sorted the $X_i$'s, and similarly for $\mathrm{rank}(Y_i)$.
+    + So $\mathrm{rank}(X_i)\in{1, \ldots, n}$
+  - If we let $d_i = \mathrm{rank}(X_i) - \mathrm{rank}(Y_i)$, we define the Spearman correlation as
+  
+$$\rho = 1 - \frac{6\sum_{i=1}^n d_i^2}{n(n^2 - 1)}.$$
+
+  - Just like Pearson correlation, we have $\rho \in [-1, 1]$.
+    + **Exercise**: what ranks should we have to get $\rho=1$? What about $\rho = -1$?
+  - Spearman measures **monotone relationships** and less sensitive to outliers.
+  
+## Example {.allowframebreaks}
+
+  - `divorce_margarine` contains data on divorce rates per year in Maine and margarine consumption per capita from 2000 to 2009
+  
+```{r}
+library(tidyverse)
+library(dslabs)
+
+# Rename variables
+dataset <- divorce_margarine |> 
+  rename(div = divorce_rate_maine,
+         marg = margarine_consumption_per_capita)
+```
+
+
+```{r}
+# 1. Pearson correlation
+dataset |> 
+  summarise(sxy = cov(div, marg),
+            s2x = var(div),
+            s2y = var(marg)) |> 
+  mutate(corr = sxy/sqrt(s2x * s2y))
+```
+
+```{r}
+# Or even simpler
+dataset |> 
+  summarise(corr = cor(div, marg))
+```
+
+```{r}
+# 2. Spearman correlation
+dataset |> 
+  summarise(corr = cor(div, marg, method = "spearman"))
+```
+
+## Exercise
+
+Calculate the Spearman correlation between divorce rate and margarine consumption using the definition. Use the `rank` function from the tidyverse.
+
+## Solution {.allowframebreaks}
+
+```{r}
+nobs <- nrow(dataset)
+dataset |> 
+  mutate(div_rk = rank(div),
+         marg_rk = rank(marg),
+         diff = div_rk - marg_rk) |> 
+  summarise(corr = 1 - 6*sum(diff^2)/(nobs*(nobs^2 - 1)))
+```
+
+```{r}
+# Also equal to Pearson corr. of ranks
+dataset |> 
+  mutate(div_rk = rank(div),
+         marg_rk = rank(marg)) |> 
+  summarise(corr = cor(div_rk, marg_rk))
+```
+
+## Auto-correlation {.allowframebreaks}
+
+  - **Auto-correlation** is a main feature of time series data, i.e. measurements taken over time.
+    + E.g. stock markets, temperatures, sales numbers
+  - By their nature, successive measurements tend to be correlated.
+    + E.g. yesterday's temperature is correlated with today's
+  - **Periodicity** is also a common feature.
+    + E.g. Sales tend to be higher on Saturdays, and around Christmas, etc.
+  - Auto-correlation is measured by taking the correlation between the time series and its lagged counterpart.
+  
+  - Let $Y_t, t=0, 1, 2, \ldots, T$ be a time series. The $k$-th auto-correlation is given by
+  
+$$r_k = \frac{\sum_{t=k+1}^T (Y_t - \bar{Y})(Y_{t-k} - \bar{Y})}{\sum_{t=1}^T(Y_t - \bar{Y})^2}.$$
+
+  - Unexpectedly large autocorrelation can help identify periodicity in the data.
+
+## Example {.allowframebreaks}
+
+```{r echo = FALSE}
+library(tidyverse)
+library(lubridate)
+library(cowplot)
+
+data_vax <- read_csv("vaccines.csv")
+data_vax |> 
+  filter(Date >= max(Date) - weeks(4)) |> 
+  pivot_longer(!Date, names_to = "type",
+               values_to = "count") |>
+  mutate(type = factor(type, 
+                       levels = c("first_dose", "full_dose"),
+                       labels = c("First dose", "Fully vacc."))) |> 
+  ggplot(aes(x = Date, y = count,
+             colour = type)) +
+  geom_line() +
+  theme_minimal_hgrid() +
+  scale_colour_discrete(name = "") +
+  theme(legend.position = "top") +
+  labs(caption = "Vaccination numbers for SK") +
+  xlab("") + ylab("Number of daily doses") +
+  scale_y_continuous(labels = scales::comma)
+```
+
+```{r echo = FALSE}
+library(forecast)
+data_vax <- data_vax |>
+  filter(Date >= max(Date) - weeks(4))
+
+par(mfrow = c(1, 2))
+Acf(data_vax$first_dose, main = "First dose", lag.max = 10)
+Acf(data_vax$full_dose, main = "Fully vacc.", lag.max = 10)
+```
+
+## Correlation vs Causation {.allowframebreaks}
+
+![](correlation.png)
+
+  - Sometimes correlation happens without causation.
+    + E.g. Ice cream sales and drownings
+  - Sometimes causation happens without correlation.
+    + E.g Pressing the gas pedal while going up a hill at constant speed.
+  - **Be careful about conclusions and language used**
+  - Causation can be inferred from correlation in some situations.
+    + Randomized experimental designs.
+    + Causal inference.
