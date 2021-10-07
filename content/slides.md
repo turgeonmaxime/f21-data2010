@@ -18,6 +18,11 @@ If you are registered for the course, you can find the material on [UM Learn](ht
     + [R code](tidy-data.R)
   - [Joining data](joining-data.pdf)
     + [R code](joining-data.R)
+  - [Correlation](correlation.pdf)
+    + [R code](correlation.R)
+  - [Distribution and Significance](distribution-significance.pdf)
+    + [R code](distribution-significance.R)
+  
 
 <!--
   - [Course Overview](overview.pdf)
