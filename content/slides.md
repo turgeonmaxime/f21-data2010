@@ -22,6 +22,10 @@ If you are registered for the course, you can find the material on [UM Learn](ht
     + [R code](correlation.R)
   - [Distribution and Significance](distribution-significance.pdf)
     + [R code](distribution-significance.R)
+  - [Data Visualization](visualization.pdf)
+    + [R code](visualization.R)
+  - [Principles of Data Visualization](visualization-principles.pdf)
+    + [R code](visualization-principles.R)
   
 
 <!--
