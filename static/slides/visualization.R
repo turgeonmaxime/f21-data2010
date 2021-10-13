@@ -47,7 +47,7 @@ ggplot(olive,
 ggplot(olive, 
        aes(x = oleic)) +
   geom_histogram() +
-  facet_grid(. ~ region)
+  facet_grid( ~ region)
 
 
 ## ----message = FALSE, tidy = FALSE--------------------------------------------
@@ -59,7 +59,7 @@ ggplot(olive, aes(x = oleic)) +
                  fill = 'grey') +
   # Add colour on top
   geom_histogram(aes(fill = region)) +
-  facet_grid(. ~ region) +
+  facet_grid( ~ region) +
   # Move legend to top
   theme(legend.position = 'top')
 

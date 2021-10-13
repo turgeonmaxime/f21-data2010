@@ -92,7 +92,7 @@ ggplot(olive,
 ggplot(olive, 
        aes(x = oleic)) +
   geom_histogram() +
-  facet_grid(. ~ region)
+  facet_grid( ~ region)
 ```
 
 ## Histogram---Summary
@@ -118,7 +118,7 @@ ggplot(olive, aes(x = oleic)) +
                  fill = 'grey') +
   # Add colour on top
   geom_histogram(aes(fill = region)) +
-  facet_grid(. ~ region) +
+  facet_grid( ~ region) +
   # Move legend to top
   theme(legend.position = 'top')
 ```
@@ -190,7 +190,7 @@ ggplot(olive, aes(x = oleic,
   - **Density plots** can be thought of as *smoothed* histograms.
     + There is a parameter (`adjust`) controlling the level of smoothness: too large and it will hide important features; too small and it may create artifacts.
   - We used a different *geom* to create the plot.
-    + `geom_smooth` as opposed to `geom_histogram`.
+    + `geom_density` as opposed to `geom_histogram`.
   - The attribute `alpha` can be used to control transparency.
     + `alpha = 0` is completely transparent
     + `alpha = 1` is completely opaque.
