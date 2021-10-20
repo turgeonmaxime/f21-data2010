@@ -277,7 +277,7 @@ data_murders %>%
 library(tidyverse)
 library(dslabs)
 
-data_murders %>%
+murders %>%
   mutate(murder_rate = total / population * 100000) %>% # Compute rate
   mutate(state = reorder(state, murder_rate)) %>% 
   ggplot(aes(state, murder_rate)) +
