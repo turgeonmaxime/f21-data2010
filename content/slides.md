@@ -26,6 +26,10 @@ If you are registered for the course, you can find the material on [UM Learn](ht
     + [R code](visualization.R)
   - [Principles of Data Visualization](visualization-principles.pdf)
     + [R code](visualization-principles.R)
+  - [Scores & Rankings](scores-rankings.pdf)
+    + [R code](scores-rankings.R)
+  - [PageRank algorithm](pagerank-algorithm.pdf)
+    + [R code](pagerank-algorithm.R)
   
 
 <!--
