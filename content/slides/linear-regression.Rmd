@@ -125,7 +125,7 @@ dataset <- read.table(url)
 ```{r}
 # Separate train and test
 data_train <- filter(dataset, train)
-data_test <- filter(dataset, train)
+data_test <- filter(dataset, !train)
 ```
 
 ```{r message = FALSE}
@@ -198,7 +198,7 @@ rmse2 <- sqrt(mean((target - pred_vals2)^2))
 c(rmse1, rmse2)
 ```
 
-The second model (with age as a feature) performs slightly better.
+The second model (with age as a feature) performs slightly worse...
 
 ## Improving the model
 
@@ -229,7 +229,7 @@ rmse3 <- sqrt(mean((target - pred_vals3)^2))
 c(rmse1, rmse2, rmse3)
 ```
 
-  - This was a huge improvement: we reduced the RMSE by almost 50%.
+  - This was a huge improvement: we reduced the RMSE by almost 30%.
   - Note: `gleason` has four levels, but it only has 1 regression coefficient...
     + We would expect 3 coefficients.
   - We can fix that by transforming `gleason` from integer to factor.
@@ -253,7 +253,7 @@ rmse4 <- sqrt(mean((target - pred_vals4)^2))
 c(rmse1, rmse2, rmse3, rmse4)
 ```
 
-  - The effect was marginal.
+  - It leads to a slightly worse mode, but the effect was marginal.
 
 ## Exercise
 
@@ -271,7 +271,7 @@ rmse5 <- sqrt(mean((target - pred_vals5)^2))
 c(rmse1, rmse2, rmse3, rmse4, rmse5)
 ```
 
-  - It performs slightly worse, but the difference is minimal.
+  - It performs slightly better, but the difference is minimal.
   
 # Splines
 

@@ -220,7 +220,7 @@ library(tidyverse)
 count(data, train)
 
 data_train <- filter(data, train)
-data_test <- filter(data, train)
+data_test <- filter(data, !train)
 ```
 
   - We will build a simple regression model for predicting the log-PSA value (`lpsa`): 
@@ -263,4 +263,4 @@ mape
 c(mse, rmse, mae, mape)
 ```
 
-  - MAPE is the only one we can interpret without more context---and it's large!
+  - MAPE is the only one we can interpret without more context.

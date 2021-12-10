@@ -30,7 +30,7 @@ library(tidyverse)
 count(data, train)
 
 data_train <- filter(data, train)
-data_test <- filter(data, train)
+data_test <- filter(data, !train)
 
 
 ## -----------------------------------------------------------------------------

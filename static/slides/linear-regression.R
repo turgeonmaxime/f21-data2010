@@ -26,7 +26,7 @@ dataset <- read.table(url)
 ## -----------------------------------------------------------------------------
 # Separate train and test
 data_train <- filter(dataset, train)
-data_test <- filter(dataset, train)
+data_test <- filter(dataset, !train)
 
 
 ## ----message = FALSE----------------------------------------------------------
