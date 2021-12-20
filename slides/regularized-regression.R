@@ -62,8 +62,9 @@ beta_ridge[,1]
 
 ## -----------------------------------------------------------------------------
 # Use the same formula as for fitting the model
-X_test <- model.frame(lpsa ~ lcavol + lweight + age + lbph + 
-            svi + lcp + pgg45, data = data_test)
+X_test <- model.matrix(~ lcavol + lweight + age + 
+                          lbph + svi + lcp + pgg45, 
+                       data = data_test)
 X_test <- as.matrix(X_test)
 dim(X_test)
 
@@ -83,14 +84,10 @@ sqrt(mean((y_test - pred_vals)^2))
 
 
 ## ----echo = FALSE, cache = TRUE-----------------------------------------------
-library(tidyverse)
-
 lambda_vect <- seq(0, 5, by = 0.1)
 
 rmse_vect <- sapply(lambda_vect, function (lambda) {
-  beta_ridge <- solve(crossprod(X) + diag(lambda,
-                                        ncol = p,
-                                        nrow = p)) %*%
+  beta_ridge <- solve(crossprod(X) + lambda*diag(p)) %*%
   crossprod(X, y)
   y_pred <- X_test %*% beta_ridge
 

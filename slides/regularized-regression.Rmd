@@ -128,8 +128,9 @@ Compute the RMSE of the ridge estimate when $\lambda = 1$.
 
 ```{r}
 # Use the same formula as for fitting the model
-X_test <- model.frame(lpsa ~ lcavol + lweight + age + lbph + 
-            svi + lcp + pgg45, data = data_test)
+X_test <- model.matrix(~ lcavol + lweight + age + 
+                          lbph + svi + lcp + pgg45, 
+                       data = data_test)
 X_test <- as.matrix(X_test)
 dim(X_test)
 ```
@@ -152,14 +153,10 @@ sqrt(mean((y_test - pred_vals)^2))
 ## Effect of $\lambda$ {.allowframebreaks}
 
 ```{r echo = FALSE, cache = TRUE}
-library(tidyverse)
-
 lambda_vect <- seq(0, 5, by = 0.1)
 
 rmse_vect <- sapply(lambda_vect, function (lambda) {
-  beta_ridge <- solve(crossprod(X) + diag(lambda,
-                                        ncol = p,
-                                        nrow = p)) %*%
+  beta_ridge <- solve(crossprod(X) + lambda*diag(p)) %*%
   crossprod(X, y)
   y_pred <- X_test %*% beta_ridge
 
@@ -172,8 +169,9 @@ tibble(lambda = lambda_vect,
   geom_line()
 ```
 
-  - As we increase $\lambda$, we do get a better RMSE.
-  - But only up to a point: as $\lambda$ becomes larger and larger, the increase in bias overpowers the reduction in variance, and the overall performance suffers.
+  - In this particular example, as we increase $\lambda$, we don't get a better RMSE.
+    + In other words, OLS has better performance than ridge regression of these covariates.
+  - But what we typically see is that RMSE will decrease, but only up to a point: as $\lambda$ becomes larger and larger, the increase in bias overpowers the reduction in variance, and the overall performance suffers.
   
 ```{r echo = FALSE, cache = TRUE}
 library(purrr)
