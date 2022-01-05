@@ -2,3 +2,4 @@ content/slides/*.log
 *icloud
 .DS_Store
 notebooks/.ipynb_checkpoints/
+.ipynb_checkpoints/

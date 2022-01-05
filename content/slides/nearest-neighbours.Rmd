@@ -1,0 +1,307 @@
+---
+title: "Nearest Neighbours"
+draft: false
+source: true
+output: binb::metropolis
+fontsize: 12pt
+author: Max Turgeon
+institute: DATA 2010--Tools and Techniques in Data Science
+header-includes:
+  - \usefonttheme{professionalfonts}
+  - \usepackage{graphicx}
+  - \usepackage{tikzpagenodes}
+  - \usetikzlibrary{calc}
+  - \usepackage{caption}
+---
+
+```{r,setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(cache = FALSE, message = FALSE,
+                      linewidth = 50)
+```
+
+```{r simulation, echo = FALSE}
+set.seed(2010)
+
+library(tidyverse)
+library(mvtnorm)
+library(scales)
+
+n <- 100
+mu1 <- c(0, 0)
+mu2 <- c(2, 2)
+
+class1 <- rmvnorm(n, mean = mu1)
+class2 <- rmvnorm(n, mean = mu2)
+
+colnames(class1) <- colnames(class2) <- c("X1", "X2")
+
+dataset <- bind_rows(
+    as_tibble(class1) |> mutate(class = "positive"),
+    as_tibble(class2) |> mutate(class = "negative")
+)
+
+base_plot <- ggplot(dataset, aes(X1, X2)) +
+    geom_point(aes(colour = class)) +
+    theme_minimal() + 
+    coord_fixed()
+
+# Record colours for future use
+col_pal <- hue_pal()(2)
+```
+
+## Lecture Objectives
+
+  - Explain the nearest neighbour algorithm.
+  - Fit nearest-neighbour classifiers in Python.
+  - Evaluate the model using different metrics.
+
+## Motivation
+
+  - We started our discussion of machine learning with linear and logistic regression.
+  - We discussed how flexible they are:
+    + Combined with splines.
+    + Using regularization.
+  - Nonetheless, they still assume linearity and additivity (i.e. the regression equation).
+  - The next approaches we will discuss don't make any such assumption.
+
+## Nearest neighbours {.allowframebreaks}
+
+  - Let's assume we want to classify a new observation based on training data.
+  - For visualization purposes, we will assume we have two covariates.
+
+```{r echo = FALSE}
+# 1. (4, 0)
+new_point <- c(4, 0)
+
+base_plot +
+    geom_point(x = new_point[1], 
+               y = new_point[2], 
+               shape = 4)
+```
+
+  - How should we classify the new observation?
+  - The new observation is surrounded by negative observations, so it would make sense to classify it as negative.
+  - In fact, the *closest* training data point (in Euclidean distance) is negative.
+
+```{r echo = FALSE}
+nhbd_data <- dataset |> 
+    mutate(dist = sqrt((X1 - new_point[1])^2 + (X2 - new_point[2])^2)) |> 
+    slice_min(dist, n = 1)
+
+base_plot +
+    geom_segment(data = nhbd_data,
+                 xend = new_point[1], 
+                 yend = new_point[2]) +
+    geom_point(x = new_point[1], 
+               y = new_point[2], 
+               shape = 4, 
+               colour = col_pal[1])
+```
+
+  - What about an observation that is not surrounded by a single class?
+  - We can still find its nearest neighbour: 
+    + If it's negative, classify as negative.
+    + If it's positive, classify as positive.
+
+```{r echo = FALSE}
+# 2. (-1, 2)
+new_point <- c(-1, 2)
+
+base_plot +
+    geom_point(x = new_point[1], 
+               y = new_point[2], 
+               shape = 4)
+```
+
+```{r echo = FALSE}
+nhbd_data <- dataset |> 
+    mutate(dist = sqrt((X1 - new_point[1])^2 + (X2 - new_point[2])^2)) |> 
+    slice_min(dist, n = 1)
+
+base_plot +
+    geom_segment(data = nhbd_data,
+                 xend = new_point[1], 
+                 yend = new_point[2]) +
+    geom_point(x = new_point[1], 
+               y = new_point[2], 
+               shape = 4, 
+               colour = col_pal[2])
+```
+
+  - This is a simple algorithm, but there is one problem:
+    + What if the nearest neighbour is an outlier?
+  - To increase robustness, we can instead look at multiple neighbours:
+    + If a *majority* are negative, classify as negative.
+    + If a *majority* are positive, classify as positive.
+
+```{r echo = FALSE}
+# Repeat with K=3 neighbours
+nhbd_data <- dataset |> 
+    mutate(dist = sqrt((X1 - new_point[1])^2 + (X2 - new_point[2])^2)) |> 
+    slice_min(dist, n = 3)
+
+base_plot +
+    geom_segment(data = nhbd_data,
+                 xend = new_point[1], 
+                 yend = new_point[2]) +
+    geom_point(x = new_point[1], 
+               y = new_point[2], 
+               shape = 4, 
+               colour = col_pal[2]) +
+    labs(title = "K=3 neighbours")
+```
+
+```{r echo = FALSE}
+# Repeat with K=5 neighbours
+nhbd_data <- dataset |> 
+    mutate(dist = sqrt((X1 - new_point[1])^2 + (X2 - new_point[2])^2)) |> 
+    slice_min(dist, n = 5)
+
+base_plot +
+    geom_segment(data = nhbd_data,
+                 xend = new_point[1], 
+                 yend = new_point[2]) +
+    geom_point(x = new_point[1], 
+               y = new_point[2], 
+               shape = 4, 
+               colour = col_pal[2]) +
+    labs(title = "K=5 neighbours")
+```
+
+```{r echo = FALSE}
+# Repeat with K=7 neighbours
+nhbd_data <- dataset |> 
+    mutate(dist = sqrt((X1 - new_point[1])^2 + (X2 - new_point[2])^2)) |> 
+    slice_min(dist, n = 7)
+
+base_plot +
+    geom_segment(data = nhbd_data,
+                 xend = new_point[1], 
+                 yend = new_point[2]) +
+    geom_point(x = new_point[1], 
+               y = new_point[2], 
+               shape = 4, 
+               colour = col_pal[2]) +
+    labs(title = "K=7 neighbours")
+```
+
+  - **Question**: Why did I only choose odd values of $K$?
+  - We can visualize our *decision boundary* and see that it is not linear.
+    + In fact it doesn't even have to create connected regions for each class.
+
+```{r echo = FALSE}
+library(class)
+new_data <- expand_grid(X1 = seq(-3, 5, length.out = 100),
+                        X2 = seq(-3, 5, length.out = 100))
+
+fit <- knn(select(dataset, -class), 
+           new_data, pull(dataset, class), 
+           k = 5, prob = FALSE)
+
+new_data |> 
+    mutate(class = fit) |> 
+    ggplot(aes(X1, X2, colour = class)) +
+    geom_point(alpha = 0.5, size = 2, 
+               show.legend = FALSE, 
+               shape = 15) + 
+    geom_point(data = dataset, 
+               aes(fill = class), 
+               shape = 21, 
+               colour = "black") + 
+    coord_fixed(xlim = c(-2, 4),
+                ylim = c(-2, 4)) +
+    theme_minimal()
+```
+
+## Algorithm
+
+  1. Fix a positive integer $K$.
+  2. For a new observation, compute its distance (using the predictors) to all the data points in the training data.
+  3. Find the $K$ training data points with the smallest distance to the new observation.
+  4. Use the majority rule to classify the new observation.
+  
+## Comments {.allowframebreaks}
+
+  - To avoid ties in binary classification, we usually take $K$ odd.
+  - We typically use the Euclidean distance for its simplicity, but any distance function would work.
+  - The optimal $K$ depends on the data. Larger $K$ reduces the impact of outliers, but it makes the decision boundary less distinct.
+    + Bias-variance trade-off
+  - The same approach can be used for classification with more than 2 classes.
+  
+```{r echo = FALSE}
+library(cowplot)
+
+fit1 <- knn(select(dataset, -class), 
+           new_data, pull(dataset, class), 
+           k = 1, prob = FALSE)
+
+fit2 <- knn(select(dataset, -class), 
+           new_data, pull(dataset, class), 
+           k = 9, prob = FALSE)
+
+plot1 <- new_data |> 
+    mutate(class = fit1) |> 
+    ggplot(aes(X1, X2, colour = class)) +
+    geom_point(alpha = 0.5, size = 2, 
+               show.legend = FALSE, 
+               shape = 15) + 
+    geom_point(data = dataset, 
+               aes(fill = class), 
+               shape = 21, 
+               colour = "black",
+               show.legend = FALSE) + 
+    coord_fixed(xlim = c(-2, 4),
+                ylim = c(-2, 4)) +
+    theme_minimal()
+
+plot2 <- new_data |> 
+    mutate(class = fit2) |> 
+    ggplot(aes(X1, X2, colour = class)) +
+    geom_point(alpha = 0.5, size = 2, 
+               show.legend = FALSE, 
+               shape = 15) + 
+    geom_point(data = dataset, 
+               aes(fill = class), 
+               shape = 21, 
+               colour = "black",
+               show.legend = FALSE) + 
+    coord_fixed(xlim = c(-2, 4),
+                ylim = c(-2, 4)) +
+    theme_minimal()
+
+plot_grid(plot1, plot2, ncol = 2, 
+          labels = c("K=1", "K=9"))
+```
+
+## Exercise
+
+Open the Jupyter notebook on nearest-neighbour classification and follow the instructions.
+
+## Nearest Neighbour Regression
+
+  - For classification, we found the nearest neighbours are used the majority class to make a prediction.
+  - For *regression*, we can take the mean (or median) of the neighbours.
+  - In this way, we can also create regression models using the same general approach.
+  - **Exercise**: Build a nearest-neighbour regression model for the prostate cancer dataset. Evaluate your model.
+  
+## Summary
+
+  - The idea is simple: use the neighbours from the training data to inform the classification.
+  - There is no value of $K$ that will work best all the time.
+    + It's a hyper-parameter than can be tuned.
+  - Nearest neighbour can perform poorly with unbalanced training data.
+    + *Solution*: Downsample or upsample to create a balanced dataset (out of scope for this course).
+  - Next lecture, we will start our discussion of classification and regression trees.
