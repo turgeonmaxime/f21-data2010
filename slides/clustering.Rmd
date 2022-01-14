@@ -1,0 +1,234 @@
+---
+title: "Clustering"
+draft: false
+source: true
+output: binb::metropolis
+fontsize: 12pt
+author: Max Turgeon
+institute: DATA 2010--Tools and Techniques in Data Science
+header-includes:
+  - \usefonttheme{professionalfonts}
+  - \usepackage{graphicx}
+  - \usepackage{tikzpagenodes}
+  - \usetikzlibrary{calc}
+  - \usepackage{caption}
+---
+
+```{r,setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(cache = FALSE, message = FALSE,
+                      linewidth = 50)
+```
+
+## Lecture Objectives
+
+  - Compare and contrast supervised and unsupervised learning.
+  - Fit k-means and hierarchical clustering models in R.
+
+## Motivation
+
+  - So far we have focused on problems with a clear task:
+    + Predict a house price, classify a tumour.
+  - Sometimes we don't have a clear target for a prediction model, or we didn't measure it.
+  - Sometimes we feel like two models on two parts of the data would work best.
+  - **Clustering** is another class of methods to add to your toolkit, which complements prediction models.
+
+## Unsupervised vs Supervised Learning
+
+  - **Supervised learning**: There is a target variable, and we are trying to predict it.
+  - **Unsupervised learning**: There is no clear target variable. We want to study the structure of the data.
+  - Methods include:
+    + *Clustering*
+    + Dimension reduction
+    + Score functions
+
+## Clustering {.allowframebreaks}
+
+  - **Clustering** is about grouping similar observations together. 
+    + The output will be a discrete label for each observation, with each label corresponding to a different cluster.
+  - Similarity can be measured in multiple ways, but is usually based on a notion of *distance*.
+    + E.g. Euclidean distance, graph distance, Manhattan distance.
+  - We naturally think of clusters as spherical (i.e. lying inside a ball), but they could also be nested, or linear etc.
+  - Clustering is inherently ill-defined.
+    + The clusters I see may be different than the ones you see!
+  - As a result, we can't really say that a clustering of the data is correct, only that it's useful.
+  - There are 4 main applications of clustering:
+    + Hypothesis development
+    + Modelling over subsets
+    + Data reduction
+    + Outlier detection
+
+## K-means clustering {.allowframebreaks}
+
+  - **K-means clustering** starts by randomly picking $K$ points.
+    + These will be the "centres" of each cluster.
+  - Then each observation is assigned to the cluster corresponding to the nearest centre.
+  - The centres are re-calculated by taking the centroid of each cluster.
+    + When using the Euclidean distance, the centroid is the sample mean.
+    + In general, the centroid is not actually an observation!
+  - Repeat: reassign each observation to the cluster corresponding to the nearest centre, and recompute the centroids.
+  - The algorithm stops when the cluster assignments stop changing.
+    + There is no convergence guarantee!
+  - The number of clusters $K$ is a hyper-parameter. Ideally, we want to choose $K$ not too large, but large enough that within-cluster similarity is greater than between-cluster similarity.
+
+## Example {.allowframebreaks}
+
+```{r}
+library(dslabs)
+dataset <- brca$x
+
+results <- kmeans(dataset, centers = 5)
+# How many observations per cluster?
+results$size
+```
+
+```{r}
+library(factoextra)
+
+fviz_cluster(results, data = dataset,
+             geom = "point")
+```
+
+  - How many clusters should we pick? There are different approaches:
+    + Elbow method
+    + **Silhouette method**
+    + Gap statistic
+  - We will use the silhouette method: the silhouette measures how well a particular observation fits within a cluster.
+  - We can take the average silhouette. A higher number means a better fit.
+  
+```{r}
+# This function computes the numbers for a range
+# of values and then plots the results
+fviz_nbclust(dataset, kmeans, 
+             method = "silhouette")
+```
+
+  - As we can see, the optimal $K$ is 2. Let's refit K-means and visualize the new clusters.
+  
+```{r}
+results <- kmeans(dataset, centers = 2)
+fviz_cluster(results, data = dataset,
+             geom = "point")
+```
+
+## Exercise
+
+The dataset `tissue_gene_expression` from the `dslabs` package is actually a list containing two slots:
+
+  - `x`: Gene expression measurements for 500 genes.
+  - `y`: A vector representing the tissue type of each sample.
+  
+Using the data in slot `x`, find the optimal number of clusters.
+
+*Bonus*: How much agreement is there between the clusters you found and tissue type?
+
+## Solution {.allowframebreaks}
+
+```{r}
+data_gene <- tissue_gene_expression$x
+fviz_nbclust(data_gene, kmeans, 
+             method = "silhouette")
+```
+
+```{r}
+# Since the optimal value is on the boundary
+# it's a good idea to repeat with a larger k.max
+fviz_nbclust(data_gene, kmeans, 
+             method = "silhouette",
+             k.max = 20)
+```
+
+```{r}
+# Visualization
+results <- kmeans(data_gene, centers = 10)
+fviz_cluster(results, data = data_gene,
+             geom = "point")
+```
+
+```{r}
+# Bonus
+table(results$cluster, 
+      tissue_gene_expression$y)
+```
+
+## Hierarchical clustering
+
+  - In **hierarchical** (or agglomerative) clustering, we create a hierarchy of cluster by successively merging clusters together.
+  - We start with every point being its own cluster.
+  - At each step, we identify a pair of clusters to merge.
+  - We stop when there is only a single cluster left.
+  - For a chosen $K$ number of clusters, we "cut" the tree where $K+1$ clusters became $K$ clusters.
+    + This gives us our clustering.
+    
+## Linkage Criteria
+
+  - We can choose between many linkage criteria to determine which clusters to merge. They all essentially measure the distance between clusters, and we merge the "closest" clusters.
+    + *Nearest neighbour*: minimum distance between pairs of points. 
+    + *Average link*: average distance between pairs of points.
+    + *Nearest centroid*: compute the centroid of each cluster and measure distance between clusters as distance between centroids.
+    + *Furthest link*: maximum distance between pairs of points.
+  - Note that for each criterion, we still need to choose a notion of distance between points
+    + E.g. Euclidean, Manhattan, etc.
+
+## Example {.allowframebreaks}
+
+```{r dend_brca, warning = FALSE, cache = TRUE}
+# By default, use Ward's criterion for linkage
+results <- hcut(dataset, k = 2)
+fviz_dend(results, rect = TRUE)
+```
+
+```{r}
+fviz_nbclust(dataset, hcut, 
+             method = "silhouette")
+```
+
+## Exercise
+
+Repeat the previous exercise using hierarchical clustering.
+
+## Solution {.allowframebreaks}
+
+```{r}
+fviz_nbclust(data_gene, hcut, 
+             method = "silhouette", 
+             k.max = 20)
+```
+
+```{r dend_gene, warning = FALSE, cache = TRUE}
+results <- hcut(data_gene, k = 11)
+fviz_dend(results, rect = TRUE)
+```
+
+```{r}
+# Gene expression data is often represented 
+# using a heatmap
+heatmap(data_gene)
+```
+
+## Final remarks
+
+  - Clustering is often seen as exploratory.
+    + We don't have a clear hypothesis.
+  - We can measure performance by comparing clusters.
+    + Maximize within-cluster similarity, minimize between-cluster similarity.
+    + E.g. Silhouette score, variance reduction. 
+  - Other clustering methods can find non-spherical clusters.
+    + E.g. DBSCAN, spectral clustering.
+  - Clustering is often used in conjunction with **dimension reduction**.
+    + Project data into lower dimensional space.
+    + Cluster the data.
+  - This is especially useful for *visualization*.
+  
