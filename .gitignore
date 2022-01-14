@@ -3,3 +3,6 @@ content/slides/*.log
 .DS_Store
 notebooks/.ipynb_checkpoints/
 .ipynb_checkpoints/
+content/slides/clustering_cache/
+content/slides/clustering_files/
+static/slides/clustering_files/
