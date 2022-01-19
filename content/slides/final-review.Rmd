@@ -1,0 +1,93 @@
+---
+title: "Final Review"
+draft: false
+source: true
+output: binb::metropolis
+fontsize: 12pt
+author: Max Turgeon
+institute: DATA 2010--Tools and Techniques in Data Science
+header-includes:
+  - \usefonttheme{professionalfonts}
+  - \usepackage{graphicx}
+  - \usepackage{tikzpagenodes}
+  - \usetikzlibrary{calc}
+  - \usepackage{caption}
+---
+
+```{r,setup, include=FALSE}
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  # this hook is used only when the linewidth option is not NULL
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+    # any lines wider than n should be wrapped
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(cache = FALSE, message = FALSE,
+                      linewidth = 50)
+```
+
+## Probability and Statistics
+
+  - We started with a review of probability and statistics.
+  - We focused on *conditional* probabilities.
+    + If I have some information about a random variable, what does it tell me about another random variable?
+    + Bayes Theorem
+  - Discrete vs Continuous distributions, etc.
+  
+## Data Wrangling
+
+  - We spent several lectures (and labs!) on data manipulation.
+    + Summarize (by groups or not), create new variables, filter data.
+    + Joining multiple datasets
+    + Tidy data
+    + Dates, regular expressions
+    + Pandas
+  - Analysts spend a lot of time cleaning data.
+  - **Where to go from here?**
+    + Databases
+    + Data engineering
+    + Big data
+  
+## Data Visualization
+
+  - Visualizations in R and Python
+    + Histograms, bar plots, box plots, scatter plots, etc.
+  - We also talk about principles of effective data visualization.
+    + What visual cues are you using? Are they effective?
+    + How can I best highlight important comparisons?
+  - **Where to go from here?**
+    + Dynamic data visualization
+    + Dashboards
+    
+## Modelling
+
+  - The next few modules focused on data analysis and modelling.
+    + We started by discussing correlation, distributions and significance.
+    + We then discussed scores and rankings.
+    + We discussed how to build models and evaluate them
+  - We discussed linear regression in some detail, focusing on many aspects:
+    + Evaluating regression models
+    + Training and test data
+    + Flexible modelling with splines
+    + Regularized regression
+  - **Where to go from here?**
+    + Generalized Linear Models
+    + Bayesian statistics
+    
+## Machine Learning
+
+  - We spent the last few weeks on machine learning.
+    + Logistic regression
+    + Nearest Neighbour
+    + Decision trees and random forests
+    + Clustering
+  - **Where to go from here?**
+    + Optimization
+    + Hyper-parameter tuning
+    + Deep Learning
